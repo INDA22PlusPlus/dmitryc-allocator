@@ -19,6 +19,11 @@ struct Lal conLal(size_t size) {
     return lal;
 }
 
+// Checks if the given bytes array fits in the allocator
+bool linBounds(struct Lal *lal, size_t size) {
+    return lal->ptr + size <= lal->size;
+}
+
 // Allocates memory using a Linear Allocator
 void lalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
 
@@ -29,7 +34,7 @@ void lalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
 //    printf("Bytes size: %llu \n", size);
 
     // Checks if the given bytes array fits in the allocator, otherwise prints error message
-    if (lal->ptr + size <= lal->size) {
+    if (linBounds(lal, size)) {
         lal->lastAllocSize = (int) size;
         // Allocates the bytes
         for (int i = 0; i < size; i++) {
@@ -64,7 +69,11 @@ bool delalloc(struct Lal *lal) {
 
 // Reallocates the last allocated memory using a Linear Allocator
 void relalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
-
+    if (linBounds(lal, size)) {
+        if (delalloc(lal)) {
+            lalloc(lal, bytes, size);
+        }
+    }
 }
 
 // Resets memory to an empty Linear Allocator
@@ -101,7 +110,6 @@ void printLal(struct Lal *lal) {
     printf("\n");
 }
 
-
 int main() {
     // Testing the Linear Allocator
     struct Lal lal = conLal(sizeof(int) * 20);
@@ -114,9 +122,15 @@ int main() {
 
     printLal(&lal);
 
-    delalloc(&lal);
+    bytes[0] = 0;
+    bytes[1] = 0;
+    bytes[2] = 0;
+    bytes[3] = 0;
 
+//    delalloc(&lal);
+    relalloc(&lal, bytes, sizeof bytes);
     delalloc(&lal);
+    relalloc(&lal, bytes, sizeof bytes);
 
     printLal(&lal);
 
@@ -125,6 +139,7 @@ int main() {
     printLal(&lal);
 
     delalloc(&lal);
+    relalloc(&lal, bytes, sizeof bytes);
 
     return 0;
 }
