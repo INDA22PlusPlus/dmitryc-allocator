@@ -60,7 +60,7 @@ void relalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
 
 // Resets memory to an empty Linear Allocator
 void lreset(struct Lal *lal) {
-
+    lal->ptr = 0;
 }
 
 // Prints the filled elements of a Linear Allocator, with current fill level
@@ -85,18 +85,23 @@ void printLal(struct Lal *lal) {
     for (int i = 0; i < lal->ptr; i++) {
         printf("\t Byte %d: %d \n", i + 1, lal->bytes[i]);
     }
+    printf("\n");
 }
 
 
 int main() {
     // Testing the Linear Allocator
-    struct Lal lal = conLal(sizeof(int) + 1);
+    struct Lal lal = conLal(sizeof(int) * 20);
 
-    unsigned char bytes[] = {67, 57};
+    unsigned char bytes[] = {67, 57, 23, 145};
 
     lalloc(&lal, bytes, sizeof bytes);
     lalloc(&lal, bytes, sizeof bytes);
     lalloc(&lal, bytes, sizeof bytes);
+
+    printLal(&lal);
+
+    lreset(&lal);
 
     printLal(&lal);
 
