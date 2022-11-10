@@ -20,11 +20,11 @@ struct Lal conLal(size_t size) {
 }
 
 // Checks if the given bytes array fits in the allocator
-bool linBounds(struct Lal *lal, size_t size) {
+bool lalInBounds(struct Lal *lal, size_t size) {
     return lal->ptr + size <= lal->size;
 }
 
-// Allocates memory using a Linear Allocator
+// Allocates memory as a Linear Allocator
 void lalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
 
     // Debugging
@@ -34,7 +34,7 @@ void lalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
 //    printf("Bytes size: %llu \n", size);
 
     // Checks if the given bytes array fits in the allocator, otherwise prints error message
-    if (linBounds(lal, size)) {
+    if (lalInBounds(lal, size)) {
         lal->lastAllocSize = (int) size;
         // Allocates the bytes
         for (int i = 0; i < size; i++) {
@@ -57,19 +57,21 @@ void lalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
     }
 }
 
-// Deallocates the last allocated memory using a Linear Allocator
+// Deallocates the last allocated memory as a Linear Allocator
 bool delalloc(struct Lal *lal) {
     if (lal->lastAllocSize) {
         lal->ptr = lal->ptr - lal->lastAllocSize;
         lal->lastAllocSize = 0;
+        return 1;
     } else {
         printf("Can't deallocate when no previous allocations have been made! \n\n");
+        return 0;
     }
 }
 
-// Reallocates the last allocated memory using a Linear Allocator
+// Reallocates the last allocated memory as a Linear Allocator
 void relalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
-    if (linBounds(lal, size)) {
+    if (lalInBounds(lal, size)) {
         if (delalloc(lal)) {
             lalloc(lal, bytes, size);
         }
@@ -80,6 +82,13 @@ void relalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
 void lreset(struct Lal *lal) {
     lal->ptr = 0;
     lal->lastAllocSize = 0;
+}
+
+// Gets the byte bellow the pointer from the Linear Allocator
+unsigned char lget(struct Lal *lal) {
+    // TODO: Fix the return, add check if pointer has values bellow
+//    printf("ptr: %d, value:%d", lal->ptr, lal->bytes[lal->ptr - 1]);
+    return lal->bytes[lal->ptr - 1];
 }
 
 // Prints the filled elements of a Linear Allocator, with current fill level
@@ -110,6 +119,23 @@ void printLal(struct Lal *lal) {
     printf("\n");
 }
 
+//// A struct representing an Arena Allocator
+//struct Aal {
+//    size_t size;
+//    int ptr;
+//    int lastAllocSize;
+//    unsigned char bytes[4096];
+//};
+//
+//// Constructs and returns a Lal (a struct representing a Linear Allocator) based on given size
+//struct Aal conAal(size_t size) {
+//    struct Aal lal;
+//    lal.size = size;
+//    lal.ptr = 0;
+//    lal.lastAllocSize = 0;
+//    return lal;
+//}
+
 int main() {
     // Testing the Linear Allocator
     struct Lal lal = conLal(sizeof(int) * 20);
@@ -132,6 +158,8 @@ int main() {
     delalloc(&lal);
     relalloc(&lal, bytes, sizeof bytes);
 
+    printf("Get value at current pointer: %d \n\n", lget(&lal));
+
     printLal(&lal);
 
     lreset(&lal);
@@ -140,6 +168,8 @@ int main() {
 
     delalloc(&lal);
     relalloc(&lal, bytes, sizeof bytes);
+
+    printf("Get value at current pointer: %d \n\n", lget(&lal));
 
     return 0;
 }
