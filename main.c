@@ -19,16 +19,19 @@ struct Lal conLal(size_t size) {
 // Allocates memory using a Linear Allocator
 void lalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
 
+    // Debugging
 //    printf("Lal size: %llu \n", lal->size);
 //    printf("Lal ptr: %d \n", lal->ptr);
 //
 //    printf("Bytes size: %llu \n", size);
 
-
+    // Checks if the given bytes array fits in the allocator, otherwise prints error message
     if (lal->ptr + size <= lal->size) {
+        // Allocates the bytes
         for (int i = 0; i < size; i++) {
             lal->bytes[lal->ptr] = bytes[i];
 
+            // Debugging
 //            printf("%d \n", lal->ptr);
 //            printf("%d \n", lal->bytes[i]);
 //            printf("%d \n", bytes[i]);
@@ -45,7 +48,7 @@ void lalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
     }
 }
 
-// Prints
+// Prints the filled elements of a Linear Allocator, with current fill level
 void printLal(struct Lal *lal) {
     const int sections = 40;
     const char filledChar = '#';
@@ -54,6 +57,7 @@ void printLal(struct Lal *lal) {
     int filledPercent = (int) ((float) filled / (float) sections * 100);
     int rest = sections - filled;
 
+    // TODO: Fix this mess
     printf("Filled: %d%% \n", filledPercent);
     printf("[");
     for(;filled--;printf("%c", filledChar));
