@@ -48,6 +48,21 @@ void lalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
     }
 }
 
+// Deallocates memory using a Linear Allocator
+void delalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
+
+}
+
+// Reallocates memory using a Linear Allocator
+void relalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
+
+}
+
+// Resets memory to an empty Linear Allocator
+void lreset(struct Lal *lal) {
+
+}
+
 // Prints the filled elements of a Linear Allocator, with current fill level
 void printLal(struct Lal *lal) {
     const int sections = 40;
@@ -74,27 +89,16 @@ void printLal(struct Lal *lal) {
 
 
 int main() {
+    // Testing the Linear Allocator
     struct Lal lal = conLal(sizeof(int) + 1);
-//    lal.bytes[1] = ;
-//    printf("%d \n", lal.bytes[1]);
-
-//    printf("%d \n", lal.ptr);
-//    printf("%d \n", lal.ptr);
 
     unsigned char bytes[] = {67, 57};
 
-//    lalloc(lal, bytes, sizeof bytes);
-    lalloc(&lal, bytes, sizeof bytes);
-//    bytes[0] = 32;
-//    bytes[1] = 44;
     lalloc(&lal, bytes, sizeof bytes);
     lalloc(&lal, bytes, sizeof bytes);
-//    printf("%d", lal.ptr);
+    lalloc(&lal, bytes, sizeof bytes);
+
     printLal(&lal);
-
-//    lput(lal, );
-
-//    printf("%p \n", lal);
 
     return 0;
 }
