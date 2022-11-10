@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 // A struct representing a Linear Allocator
 struct Lal {
@@ -51,12 +52,17 @@ void lalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
     }
 }
 
-// Deallocates memory using a Linear Allocator
-void delalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
-
+// Deallocates the last allocated memory using a Linear Allocator
+bool delalloc(struct Lal *lal) {
+    if (lal->lastAllocSize) {
+        lal->ptr = lal->ptr - lal->lastAllocSize;
+        lal->lastAllocSize = 0;
+    } else {
+        printf("Can't deallocate when no previous allocations have been made! \n\n");
+    }
 }
 
-// Reallocates memory using a Linear Allocator
+// Reallocates the last allocated memory using a Linear Allocator
 void relalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
 
 }
@@ -108,9 +114,17 @@ int main() {
 
     printLal(&lal);
 
+    delalloc(&lal);
+
+    delalloc(&lal);
+
+    printLal(&lal);
+
     lreset(&lal);
 
     printLal(&lal);
+
+    delalloc(&lal);
 
     return 0;
 }
