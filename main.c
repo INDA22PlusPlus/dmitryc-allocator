@@ -5,6 +5,7 @@
 struct Lal {
     size_t size;
     int ptr;
+    int lastAllocSize;
     unsigned char bytes[];
 };
 
@@ -13,6 +14,7 @@ struct Lal conLal(size_t size) {
     struct Lal lal;
     lal.size = size;
     lal.ptr = 0;
+    lal.lastAllocSize = 0;
     return lal;
 }
 
@@ -27,6 +29,7 @@ void lalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
 
     // Checks if the given bytes array fits in the allocator, otherwise prints error message
     if (lal->ptr + size <= lal->size) {
+        lal->lastAllocSize = (int) size;
         // Allocates the bytes
         for (int i = 0; i < size; i++) {
             lal->bytes[lal->ptr] = bytes[i];
@@ -61,6 +64,7 @@ void relalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
 // Resets memory to an empty Linear Allocator
 void lreset(struct Lal *lal) {
     lal->ptr = 0;
+    lal->lastAllocSize = 0;
 }
 
 // Prints the filled elements of a Linear Allocator, with current fill level
@@ -68,22 +72,25 @@ void printLal(struct Lal *lal) {
     const int sections = 40;
     const char filledChar = '#';
 
-    int filled = (int) (((float) lal->ptr / (float) lal->size) * sections);
+    printf("Pointer at: byte %d \n", lal->ptr);
+    printf("Size of the last allocation: %d bytes \n", lal->lastAllocSize);
+
+    // Calculates percentage filled
+    int filled = (int) ((float) lal->ptr / (float) lal->size * (float) sections);
     int filledPercent = (int) ((float) filled / (float) sections * 100);
     int rest = sections - filled;
 
     // TODO: Fix this mess
+    // Prints percentage filled
     printf("Filled: %d%% \n", filledPercent);
     printf("[");
     for(;filled--;printf("%c", filledChar));
     for(;rest--;printf("%c", ' '));
     printf("] \n\n");
 
-//    printf("ptr: %d \n", lal->ptr);
-
     printf("Filled bytes: \n");
     for (int i = 0; i < lal->ptr; i++) {
-        printf("\t Byte %d: %d \n", i + 1, lal->bytes[i]);
+        printf("\t Byte %d: %d \n", i, lal->bytes[i]);
     }
     printf("\n");
 }
