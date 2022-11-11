@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// A struct representing a Linear Allocator
+/// A struct representing a Linear Allocator
 struct Lal {
     size_t size;
     int ptr;
@@ -10,7 +10,7 @@ struct Lal {
     unsigned char bytes[];
 };
 
-// Constructs and returns a Lal (a struct representing a Linear Allocator) based on given size
+/// Constructs and returns a Lal (a struct representing a Linear Allocator) based on given size
 struct Lal conLal(size_t size) {
     struct Lal lal;
     lal.size = size;
@@ -19,12 +19,12 @@ struct Lal conLal(size_t size) {
     return lal;
 }
 
-// Checks if the given bytes array fits in the allocator
+/// Checks if the given bytes array fits in the allocator
 bool lalInBounds(struct Lal *lal, size_t size) {
     return lal->ptr + size <= lal->size;
 }
 
-// Allocates memory as a Linear Allocator
+/// Allocates memory as a Linear Allocator
 void lalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
 
     // Debugging
@@ -57,7 +57,7 @@ void lalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
     }
 }
 
-// Deallocates the last allocated memory as a Linear Allocator
+/// Deallocates the last allocated memory as a Linear Allocator
 bool delalloc(struct Lal *lal) {
     if (lal->lastAllocSize) {
         lal->ptr = lal->ptr - lal->lastAllocSize;
@@ -69,7 +69,22 @@ bool delalloc(struct Lal *lal) {
     }
 }
 
-// Reallocates the last allocated memory as a Linear Allocator
+/// Force deallocates the byte bellow the point, as long as there are bytes left in the Linear Allocator
+bool forceDelalloc(struct Lal *lal) {
+    if (lal->ptr) {
+        lal->ptr--;
+        if (lal->lastAllocSize) {
+            lal->lastAllocSize--;
+        }
+        return 1;
+    } else {
+        printf("Can't deallocate when the allocation is empty! \n\n");
+        return 0;
+    }
+}
+
+
+/// Reallocates the last allocated memory as a Linear Allocator
 void relalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
     if (lalInBounds(lal, size)) {
         if (delalloc(lal)) {
@@ -78,20 +93,20 @@ void relalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
     }
 }
 
-// Resets memory to an empty Linear Allocator
+/// Resets memory to an empty Linear Allocator
 void lreset(struct Lal *lal) {
     lal->ptr = 0;
     lal->lastAllocSize = 0;
 }
 
-// Gets the byte bellow the pointer from the Linear Allocator
+/// Gets the byte bellow the pointer from the Linear Allocator
 unsigned char lget(struct Lal *lal) {
     // TODO: Fix the return, add check if pointer has values bellow
 //    printf("ptr: %d, value:%d", lal->ptr, lal->bytes[lal->ptr - 1]);
     return lal->bytes[lal->ptr - 1];
 }
 
-// Prints the filled elements of a Linear Allocator, with current fill level
+/// Prints the filled elements of a Linear Allocator, with current fill level
 void printLal(struct Lal *lal) {
     const int sections = 40;
     const char filledChar = '#';
@@ -119,22 +134,20 @@ void printLal(struct Lal *lal) {
     printf("\n");
 }
 
-//// A struct representing an Arena Allocator
-//struct Aal {
-//    size_t size;
-//    int ptr;
-//    int lastAllocSize;
-//    unsigned char bytes[4096];
-//};
-//
-//// Constructs and returns a Lal (a struct representing a Linear Allocator) based on given size
-//struct Aal conAal(size_t size) {
-//    struct Aal lal;
-//    lal.size = size;
-//    lal.ptr = 0;
-//    lal.lastAllocSize = 0;
-//    return lal;
-//}
+/// A struct representing an Arena Allocator
+struct Aal {
+    unsigned char* ptr;
+    unsigned char bytes[4096];
+};
+
+/// Constructs and returns an Arena Allocator based on given size
+struct Aal conAal() {
+    struct Aal aal;
+    aal.ptr = aal.bytes;
+    return aal;
+}
+
+/// Buddy Allocator (coming soon™)
 
 int main() {
     // Testing the Linear Allocator
@@ -159,6 +172,12 @@ int main() {
     relalloc(&lal, bytes, sizeof bytes);
 
     printf("Get value at current pointer: %d \n\n", lget(&lal));
+
+    printLal(&lal);
+
+    forceDelalloc(&lal);
+    forceDelalloc(&lal);
+    forceDelalloc(&lal);
 
     printLal(&lal);
 
