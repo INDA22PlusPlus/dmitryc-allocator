@@ -69,6 +69,15 @@ bool delalloc(struct Lal *lal) {
     }
 }
 
+/// Reallocates the last allocated memory as a Linear Allocator
+void relalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
+    if (lalInBounds(lal, size)) {
+        if (delalloc(lal)) {
+            lalloc(lal, bytes, size);
+        }
+    }
+}
+
 /// Force deallocates the byte bellow the point, as long as there are bytes left in the Linear Allocator
 bool forceDelalloc(struct Lal *lal) {
     if (lal->ptr) {
@@ -84,11 +93,13 @@ bool forceDelalloc(struct Lal *lal) {
 }
 
 
-/// Reallocates the last allocated memory as a Linear Allocator
-void relalloc(struct Lal *lal, unsigned char bytes[], size_t size) {
-    if (lalInBounds(lal, size)) {
-        if (delalloc(lal)) {
-            lalloc(lal, bytes, size);
+/// Force reallocates the byte bellow the point, as long as there are bytes left in the Linear Allocator
+void forceRelalloc(struct Lal *lal, unsigned char byte) {
+    if (lalInBounds(lal, 1)) {
+        if (forceDelalloc(lal)) {
+            unsigned char bytes[1];
+            bytes[0] = byte;
+            lalloc(lal, bytes, 1);
         }
     }
 }
@@ -135,6 +146,7 @@ void printLal(struct Lal *lal) {
 }
 
 /// A struct representing an Arena Allocator
+// (Most likely going to be replaced with mate allocator)
 struct Aal {
     unsigned char* ptr;
     unsigned char bytes[4096];
@@ -147,7 +159,10 @@ struct Aal conAal() {
     return aal;
 }
 
-/// Buddy Allocator (coming soon™)
+/// Mate (Buddy) Allocator (coming soon™)
+struct Mal {
+
+};
 
 int main() {
     // Testing the Linear Allocator
@@ -177,7 +192,14 @@ int main() {
 
     forceDelalloc(&lal);
     forceDelalloc(&lal);
+
+    printLal(&lal);
+
     forceDelalloc(&lal);
+
+    printLal(&lal);
+
+    forceRelalloc(&lal, 8);
 
     printLal(&lal);
 
